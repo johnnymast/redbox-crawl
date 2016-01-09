@@ -58,6 +58,8 @@ class Http implements TransportInterface
     {
         $this->getAdapter()->open();
 
+        echo '<pre>INFO: '.get_class($this->getAdapter()).'</pre>';
+
         $data = $this->getAdapter()->send($request->getUrl(), $request->getRequestMethod(), $request->getRequestHeaders(), $request->getPostBody());
      //   $status_code = $this->getAdapter()->getHttpStatusCode();
 

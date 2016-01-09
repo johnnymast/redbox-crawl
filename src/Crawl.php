@@ -34,6 +34,8 @@ class Crawl {
         /*** get the HTML (suppress errors) ***/
         @$dom->loadHTML($this->transport->sendRequest($request));
 
+        echo '<pre>@@'.$this->transport->getAdapter()->getContentType().'</pre>';
+
         /*** remove silly white space ***/
         $dom->preserveWhiteSpace = false;
 
@@ -53,6 +55,10 @@ class Crawl {
 
         $this->setPages($ret);
         return $this;
+    }
+
+    public function getTransport() {
+        return $this->transport;
     }
 
     public function getInsecureContent($url)

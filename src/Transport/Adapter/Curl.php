@@ -55,7 +55,6 @@ class Curl implements AdapterInterface
         }
     }
 
-
     /**
      * Send the request to the server.
      *
