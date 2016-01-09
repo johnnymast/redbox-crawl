@@ -15,32 +15,34 @@ class Crawl {
         $this->transport = new Transport\Http;
     }
 
-    // TODO recursive
-    private function crawlPages($url)
+    private function parseTags($tag = "", $source ="")
     {
-        $info = parse_url($url);
-
-        /*** return array ***/
-        $ret = array();
-
         /*** a new dom object ***/
         $dom = new \domDocument;
+
+        @$dom->loadHTML($source);
+
+        /*** remove silly white space ***/
+        $dom->preserveWhiteSpace = false;
+
+        /*** get the links from the HTML ***/
+        $tags = $dom->getElementsByTagName($tag);
+
+        return $tags;
+    }
+
+    private function crawlPages($url)
+    {
+       /*** return array ***/
+        $ret = array();
 
         $request = new HttpRequest(
             $url,
             HttpRequest::REQUEST_METHOD_GET
         );
 
-        /*** get the HTML (suppress errors) ***/
-        @$dom->loadHTML($this->transport->sendRequest($request));
-
-        echo '<pre>@@'.$this->transport->getAdapter()->getContentType().'</pre>';
-
-        /*** remove silly white space ***/
-        $dom->preserveWhiteSpace = false;
-
         /*** get the links from the HTML ***/
-        $links = $dom->getElementsByTagName('a');
+        $links = $this->parseTags('a', $this->transport->sendRequest($request));
 
         /*** loop over the links ***/
         foreach ($links as $tag)
@@ -50,7 +52,8 @@ class Crawl {
             if ($link->getUrl()[0] == '#')
                 continue;
 
-            $ret[$link->getUrl()] = $link;
+            if ($link->getScheme() != 'https')
+                $ret[$link->getUrl()] = $link;
         }
 
         $this->setPages($ret);

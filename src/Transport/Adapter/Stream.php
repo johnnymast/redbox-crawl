@@ -19,8 +19,6 @@ class Stream implements AdapterInterface
     }
 
     /**
-     * Nothing here .. Move on ..
-     *
      * @return void
      */
     public function open()
@@ -101,7 +99,7 @@ class Stream implements AdapterInterface
 
             if (substr($header, 0, strlen($needle)) === 'content-type:') {
                 $header = explode(';', $header);
-                return substr($header[0], strlen($needle));
+                return trim(substr($header[0], strlen($needle)));
             }
         }
         return false;

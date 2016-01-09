@@ -13,12 +13,14 @@ class Http implements TransportInterface
      */
     protected $adapter;
 
-    public function __construct()
-    {
-
-    }
-
-    /* -- Setters */
+    /**
+     * @var int
+     */
+    protected $http_status_code;
+    /**
+     * @var string
+     */
+    protected $content_type;
 
     /**
      * Set the Transport adapter we will use to communicate
@@ -51,6 +53,38 @@ class Http implements TransportInterface
         return $this->adapter;
     }
 
+    /**
+     * @return int
+     */
+    public function getHttpStatusCode()
+    {
+        return $this->http_status_code;
+    }
+
+    /**
+     * @param int $http_status_code
+     */
+    public function setHttpStatusCode($http_status_code)
+    {
+        $this->http_status_code = $http_status_code;
+    }
+
+    /**
+     * @return string
+     */
+    public function getContentType()
+    {
+        return $this->content_type;
+    }
+
+    /**
+     * @param string $content_type
+     */
+    public function setContentType($content_type)
+    {
+        $this->content_type = $content_type;
+    }
+
     /* -- Getters -- */
 
 
@@ -58,10 +92,11 @@ class Http implements TransportInterface
     {
         $this->getAdapter()->open();
 
-        echo '<pre>INFO: '.get_class($this->getAdapter()).'</pre>';
-
         $data = $this->getAdapter()->send($request->getUrl(), $request->getRequestMethod(), $request->getRequestHeaders(), $request->getPostBody());
-     //   $status_code = $this->getAdapter()->getHttpStatusCode();
+
+        $this->setHttpStatusCode($this->getAdapter()->getHttpStatusCode());
+
+        $this->setContentType($this->getAdapter()->getContentType());
 
         $this->getAdapter()->close();
 
