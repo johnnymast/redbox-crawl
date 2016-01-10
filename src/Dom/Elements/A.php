@@ -1,7 +1,7 @@
 <?php
-namespace Redbox\Crawl\DomTree;
+namespace Redbox\Crawl\Dom\Elements;
 
-class A {
+class A extends DomElementAbstract {
 
     /**
      * @var string
@@ -28,19 +28,54 @@ class A {
      */
     protected $url;
 
-    public function __construct($url="", $domain="")
+    /**
+     * @var string
+     */
+    protected $tag;
+
+
+    public function __construct($args)
     {
-        $this->setUrl($url);
+        extract($args);
 
-        $info = parse_url($url);
-        if (is_array($info) == true) {
-
-            if (isset($info['scheme']) == true) $this->setScheme($info['scheme']);
-            if (isset($info['path']) == true) $this->setPath($info['path']);
-            if (isset($info['host']) == true) $this->setHost($info['host']);
-
-            $this->setIsOnDomain((bool)($this->getHost() === $domain));
+        if (isset($url) == false) {
+            $this->error = 'Required parameter url was not set.';
+            $this->setIsValid(false);
         }
+
+        if (isset($domain) == false) {
+            $this->error = 'required parameter domain was not set.';
+            $this->setIsValid(false);
+        }
+
+        if ($this->isIsValid()) {
+            $this->setUrl($url);
+
+            $info = parse_url($url);
+            if (is_array($info) == true) {
+
+                if (isset($info['scheme']) == true) $this->setScheme($info['scheme']);
+                if (isset($info['path']) == true) $this->setPath($info['path']);
+                if (isset($info['host']) == true) $this->setHost($info['host']);
+
+                $this->setIsOnDomain((bool)($this->getHost() === $domain));
+            }
+        }
+    }
+
+    public function verifyImplementation()
+    {
+        if ($this->error == true) {
+            throw new \Exception($this->error);
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getTag()
+    {
+        return $this->tag;
     }
 
     /**
@@ -121,5 +156,13 @@ class A {
     public function setPath($path)
     {
         $this->path = $path;
+    }
+
+    /**
+     * @param string $tag
+     */
+    public function setTag($tag)
+    {
+        $this->tag = $tag;
     }
 }

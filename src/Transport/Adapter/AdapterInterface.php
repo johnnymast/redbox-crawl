@@ -3,13 +3,11 @@ namespace Redbox\Crawl\Transport\Adapter;
 
 interface AdapterInterface
 {
-
     /**
      * Since PSR-4 does not allow constructors to throw exceptions
      * we need to get creative. Every Adapter needs to verify that it can
      * be used.
      *
-     * @throws BadFunctionCallException
      * @return bool
      */
     public function verifySupport();
