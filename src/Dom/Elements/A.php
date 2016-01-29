@@ -1,66 +1,41 @@
 <?php
 namespace Redbox\Crawl\Dom\Elements;
 
-class A extends DomElementAbstract {
+class A extends DomElementAbstract
+{
 
     /**
      * @var string
      */
-    protected $scheme;
-
-    /**
-     * @var bool
-     */
-    protected $on_domain;
-
-    /**
-     * @var string
-     */
-    protected $host;
-
-    /**
-     * @var string
-     */
-    protected $path;
-
-    /**
-     * @var string
-     */
-    protected $url;
-
-    /**
-     * @var string
-     */
-    protected $tag;
+    protected $href;
 
 
-    public function __construct($args)
+    public function __construct(\DOMElement $element, $domain = '')
     {
-        extract($args);
 
-        if (isset($url) == false) {
-            $this->error = 'Required parameter url was not set.';
-            $this->setIsValid(false);
-        }
+        if ($element) {
 
-        if (isset($domain) == false) {
-            $this->error = 'required parameter domain was not set.';
-            $this->setIsValid(false);
-        }
+            if (!($this->href = $element->getAttribute('href'))) {
+                $this->error = 'Required parameter url was not set.';
+                $this->setIsValid(false);
+            }
 
-        if ($this->isIsValid()) {
-            $this->setUrl($url);
+            $this->setDomain($domain);
 
-            $info = parse_url($url);
-            if (is_array($info) == true) {
+            if ($this->isIsValid()) {
+                $info = parse_url($this->href);
 
-                if (isset($info['scheme']) == true) $this->setScheme($info['scheme']);
-                if (isset($info['path']) == true) $this->setPath($info['path']);
-                if (isset($info['host']) == true) $this->setHost($info['host']);
+                if (is_array($info) == true) {
 
-                $this->setIsOnDomain((bool)($this->getHost() === $domain));
+                    if (isset($info['scheme']) == true) $this->setScheme($info['scheme']);
+                    if (isset($info['path']) == true)   $this->setPath($info['path']); // FIXME: needed ??
+                    if (isset($info['host']) == true)   $this->setHost($info['host']);
+
+                    $this->setIsSecure((bool)($this->getHost() === $domain));
+                }
             }
         }
+
     }
 
     public function verifyImplementation()
@@ -71,98 +46,27 @@ class A extends DomElementAbstract {
     }
 
     /**
-     * @return string
+     * @param string $href
      */
-    public function getTag()
+    public function setHref($href)
     {
-        return $this->tag;
+        $this->href = $href;
     }
+
 
     /**
      * @return string
      */
-    public function getScheme()
+    public function getHref()
     {
-        return $this->scheme;
-    }
-
-    /**
-     * @param string $scheme
-     */
-    public function setScheme($scheme)
-    {
-        $this->scheme = $scheme;
-    }
-
-    /**
-     * @return boolean
-     */
-    public function isOnDomain()
-    {
-        return $this->on_domain;
-    }
-
-    /**
-     * @param boolean $on_domain
-     */
-    public function setIsOnDomain($on_domain)
-    {
-        $this->on_domain = $on_domain;
+        return $this->href;
     }
 
     /**
      * @return string
      */
-    public function getHost()
+    public function getTag()
     {
-        return $this->host;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPath()
-    {
-        return $this->path;
-    }
-
-    /**
-     * @param string $host
-     */
-    public function setHost($host)
-    {
-        $this->host = $host;
-    }
-
-    /**
-     * @return string
-     */
-    public function getUrl()
-    {
-        return $this->url;
-    }
-
-    /**
-     * @param string $url
-     */
-    public function setUrl($url)
-    {
-        $this->url = $url;
-    }
-
-    /**
-     * @param string $path
-     */
-    public function setPath($path)
-    {
-        $this->path = $path;
-    }
-
-    /**
-     * @param string $tag
-     */
-    public function setTag($tag)
-    {
-        $this->tag = $tag;
+        return 'a';
     }
 }

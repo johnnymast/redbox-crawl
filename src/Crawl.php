@@ -30,7 +30,7 @@ class Crawl {
         $this->domFactory = new Dom\DomFactory;
     }
 
-    private function parseTags(Elements\DomElementAbstract $tag = null, $source ="")
+    private function parseTags($tag = '', $source ="")
     {
         if (!$tag) {
             throw new Exception\CrawlException('Tag has type of null');
@@ -44,10 +44,9 @@ class Crawl {
         /*** remove silly white space ***/
         $dom->preserveWhiteSpace = false;
 
-        echo '@@Crawl '.$tag->getTag();
-
         /*** get the links from the HTML ***/
-        $tags = $dom->getElementsByTagName($tag->getTag());
+      //  $tag->setTag('a');
+        $tags = $dom->getElementsByTagName($tag);
 
         return $tags;
     }
@@ -55,31 +54,35 @@ class Crawl {
     private function crawlPages($url)
     {
        /*** return array ***/
-        $ret = array();
+        $types = array(
+            'a'   => array(),
+            'img' => array(),
+        );
 
         $request = new HttpRequest(
             $url,
             HttpRequest::REQUEST_METHOD_GET
         );
 
-        $a = $this->domFactory->create('a', [
-            'url' => $url,
-            'domain'=> $this->domain,
-        ]);
 
-        /*** get the links from the HTML ***/
-        $links = $this->parseTags($a, $this->transport->sendRequest($request));
+        foreach($types as $tag => $info) {
 
-        /*** loop over the links ***/
-        foreach ($links as $tag)
-        {
-            $link = $this->domFactory->create('a', [ 'url' => $tag->getAttribute('href'), 'domain' => $this->domain]);
+            /*** get the links from the HTML ***/
+            $elements = $this->parseTags($tag, $this->transport->sendRequest($request));
 
-            if ($link->getUrl()[0] == '#')
-                continue;
+            /*** loop over the links ***/
+            foreach ($elements as $element)
+            {
 
-            if ($link->getScheme() != 'https')
-                $ret[$link->getUrl()] = $link;
+                $link = $this->domFactory->createElement($tag, $this->domain, $element);
+
+                if ($link->getUrl()[0] == '#')
+                    continue;
+
+                if ($link->getScheme() != 'https')
+                    $ret[$tag][] = $link;
+            }
+
         }
 
         $this->setPages($ret);
@@ -110,7 +113,7 @@ class Crawl {
 
     public function getInsecureContent($url)
     {
-        $pages = $this->crawlPages($url);
+        $this->crawlPages($url);
         return $this->getPages();
     }
 
